@@ -1,9 +1,6 @@
 streamlit
-numpy
 pandas
+numpy
 matplotlib
 seaborn
 scikit-learn
-gensim
-pyvi
-beautifulsoup4
