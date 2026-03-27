@@ -95,7 +95,7 @@ choice = st.sidebar.radio("KHÁM PHÁ", ["🏠 Trang chủ", "📈 Định giá 
 
 if choice == "🏠 Trang chủ":
     # Hiển thị banner ở trên cùng
-    st.image("nhatot.jpg", use_container_width=True)
+    st.image("nhatot.png", use_container_width=True)
     # Hero Section
     st.markdown('<div class="header-style"><h1>Tìm nhà tốt, chọn Nhà Tốt</h1><p>Hệ thống hỗ trợ tìm kiếm và phân tích bất động sản thông minh</p></div>', unsafe_allow_html=True)
     
