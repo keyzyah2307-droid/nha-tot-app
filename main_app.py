@@ -207,245 +207,42 @@ elif choice == "📈 Định giá AI":
 
 elif choice == "🔍 Gợi ý thông minh":
     st.title("🔍 Gợi ý nhà tương tự")
-
+    
     if cosine_sim is not None:
+        # KIỂM TRA ĐỘ DÀI MA TRẬN
         max_supported = len(cosine_sim)
-        st.info(f"Hệ thống gợi ý hiện tại hỗ trợ {max_supported} căn nhà đầu tiên trong danh sách.")
-
-        # Giới hạn dữ liệu theo ma trận cosine
-        df_limited = df.iloc[:max_supported].copy()
-
-        # =========================
-        # CSS hiển thị đẹp hơn
-        # =========================
-        st.markdown("""
-        <style>
-        .section-title {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-        .sub-block {
-            border-left: 5px solid #2f6f4f;
-            padding-left: 12px;
-            margin-top: 20px;
-            margin-bottom: 10px;
-            font-size: 18px;
-            font-weight: 700;
-            color: #2c2c2c;
-        }
-        .house-card {
-            border-radius: 16px;
-            overflow: hidden;
-            background: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-            margin-bottom: 16px;
-            border: 1px solid #eee;
-        }
-        .sim-header {
-            background: #fff3e0;
-            color: #e65100;
-            font-size: 12px;
-            padding: 6px;
-            font-weight: bold;
-            text-align: center;
-        }
-        .card-body {
-            padding: 14px;
-        }
-        .price-text {
-            color: #d32f2f;
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-        .meta-text {
-            font-size: 13px;
-            color: #555;
-            margin-bottom: 4px;
-        }
-        .tag-box {
-            display: inline-block;
-            background: #f3f4f6;
-            color: #333;
-            padding: 4px 8px;
-            border-radius: 8px;
-            font-size: 11px;
-            margin-right: 6px;
-            margin-top: 6px;
-        }
-        </style>
-        """, unsafe_allow_html=True)
-
-        # =========================
-        # Chuẩn hóa dữ liệu an toàn
-        # =========================
-        def safe_col(col_name, default_value="Không rõ"):
-            return df_limited[col_name] if col_name in df_limited.columns else default_value
-
-        # Các option cho selectbox
-        quan_options = ["Tất cả"] + sorted(df_limited["quan"].dropna().astype(str).unique().tolist()) if "quan" in df_limited.columns else ["Tất cả"]
-        loai_hinh_options = ["Tất cả"] + sorted(df_limited["loai_hinh"].dropna().astype(str).unique().tolist()) if "loai_hinh" in df_limited.columns else ["Tất cả"]
-        noi_that_options = ["Tất cả"] + sorted(df_limited["tinh_trang_noi_that"].dropna().astype(str).unique().tolist()) if "tinh_trang_noi_that" in df_limited.columns else ["Tất cả"]
-
-        # =========================
-        # KHU VỰC NHẬP TIÊU CHÍ NHƯ HÌNH
-        # =========================
-        st.markdown('<div class="sub-block">📌 Thông tin căn nhà cần tìm</div>', unsafe_allow_html=True)
-
-        c1, c2, c3 = st.columns(3)
-        with c1:
-            selected_quan = st.selectbox("Quận (ưu tiên)", quan_options, index=quan_options.index("Bình Thạnh") if "Bình Thạnh" in quan_options else 0)
-        with c2:
-            selected_loai_hinh = st.selectbox("Loại hình", loai_hinh_options, index=loai_hinh_options.index("Nhà ngõ, hẻm") if "Nhà ngõ, hẻm" in loai_hinh_options else 0)
-        with c3:
-            selected_noi_that = st.selectbox("Nội thất", noi_that_options, index=noi_that_options.index("Nội thất cao cấp") if "Nội thất cao cấp" in noi_that_options else 0)
-
-        st.markdown('<div class="sub-block">📐 Kích thước & Phòng ốc</div>', unsafe_allow_html=True)
-
-        d1, d2, d3, d4, d5 = st.columns(5)
-        with d1:
-            target_price = st.number_input("Giá (triệu)", min_value=0.0, value=5000.0, step=100.0)
-        with d2:
-            target_area = st.number_input("Diện tích (m²)", min_value=0.0, value=50.0, step=1.0)
-        with d3:
-            target_floors = st.number_input("Số tầng", min_value=0, value=3, step=1)
-        with d4:
-            target_bedrooms = st.number_input("Phòng ngủ", min_value=0, value=3, step=1)
-        with d5:
-            target_width = st.number_input("Ngang (m)", min_value=0.0, value=4.0, step=0.1)
-
-        top_k = st.slider("Số nhà gợi ý (Top K)", min_value=1, max_value=10, value=5, step=1)
-
-        # =========================
-        # Chọn căn gốc để tìm tương tự
-        # =========================
-        st.markdown("### Chọn căn nhà tham chiếu")
+        st.info(f"Hệ thống gợi ý hiện tại hỗ trợ 2000 căn nhà đầu tiên trong danh sách.")
+        
+        # Chỉ cho phép chọn trong phạm vi AI hỗ trợ để tránh lỗi Index
+        df_limited = df.iloc[:max_supported]
+        
         selected_id = st.selectbox(
-            "Chọn căn nhà để tìm căn tương tự:",
+            "Chọn căn nhà để tìm căn tương tự:", 
             options=df_limited.index,
-            format_func=lambda x: (
-                f"ID {x} | "
-                f"{df_limited.loc[x, 'loai_hinh'] if 'loai_hinh' in df_limited.columns else 'N/A'} | "
-                f"{df_limited.loc[x, 'quan'] if 'quan' in df_limited.columns else 'N/A'} | "
-                f"{df_limited.loc[x, 'gia_ban'] if 'gia_ban' in df_limited.columns else 'N/A'}"
-            )
+            format_func=lambda x: f"ID {x}: {df_limited.loc[x, 'loai_hinh']} - {df_limited.loc[x, 'gia_ban']} tỷ"
         )
-
-        # =========================
-        # Lọc ứng viên theo form nhập
-        # =========================
-        candidate_df = df_limited.copy()
-
-        if selected_quan != "Tất cả" and "quan" in candidate_df.columns:
-            candidate_df = candidate_df[candidate_df["quan"].astype(str) == selected_quan]
-
-        if selected_loai_hinh != "Tất cả" and "loai_hinh" in candidate_df.columns:
-            candidate_df = candidate_df[candidate_df["loai_hinh"].astype(str) == selected_loai_hinh]
-
-        if selected_noi_that != "Tất cả" and "tinh_trang_noi_that" in candidate_df.columns:
-            candidate_df = candidate_df[candidate_df["tinh_trang_noi_that"].astype(str) == selected_noi_that]
-
-        # Lọc khoảng gần đúng cho biến số
-        if "gia_ban" in candidate_df.columns:
-            candidate_df = candidate_df[
-                pd.to_numeric(candidate_df["gia_ban"], errors="coerce").between(target_price * 0.7, target_price * 1.3)
-            ]
-
-        if "dien_tich" in candidate_df.columns:
-            candidate_df = candidate_df[
-                pd.to_numeric(candidate_df["dien_tich"], errors="coerce").between(target_area * 0.7, target_area * 1.3)
-            ]
-
-        if "tong_so_tang" in candidate_df.columns:
-            candidate_df = candidate_df[
-                pd.to_numeric(candidate_df["tong_so_tang"], errors="coerce").between(max(0, target_floors - 1), target_floors + 1)
-            ]
-
-        if "so_phong_ngu" in candidate_df.columns:
-            candidate_df = candidate_df[
-                pd.to_numeric(candidate_df["so_phong_ngu"], errors="coerce").between(max(0, target_bedrooms - 1), target_bedrooms + 1)
-            ]
-
-        if "chieu_ngang" in candidate_df.columns:
-            candidate_df = candidate_df[
-                pd.to_numeric(candidate_df["chieu_ngang"], errors="coerce").between(target_width * 0.7, target_width * 1.3)
-            ]
-
-        # =========================
-        # Tính cosine similarity
-        # =========================
+        
+        # XỬ LÝ GỢI Ý AN TOÀN
         if selected_id < max_supported:
             sim_scores = list(enumerate(cosine_sim[selected_id]))
-
-            # Bỏ chính nó
-            sim_scores = [(idx, score) for idx, score in sim_scores if idx != selected_id]
-
-            # Chỉ giữ những căn còn nằm trong candidate_df
-            valid_indices = set(candidate_df.index)
-            sim_scores = [(idx, score) for idx, score in sim_scores if idx in valid_indices]
-
-            # Sắp xếp giảm dần theo độ tương đồng
-            sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)[:top_k]
-
-            st.subheader("Kết quả gợi ý")
-
-            if len(sim_scores) == 0:
-                st.warning("Không tìm thấy căn nhà phù hợp với tiêu chí đã chọn.")
-            else:
-                cols = st.columns(min(top_k, 4))
-                for i, (sim_idx, score) in enumerate(sim_scores):
-                    item = df_limited.loc[sim_idx]
-
-                    gia_ban = item["gia_ban"] if "gia_ban" in df_limited.columns else "N/A"
-                    loai_hinh = item["loai_hinh"] if "loai_hinh" in df_limited.columns else "N/A"
-                    quan = item["quan"] if "quan" in df_limited.columns else "N/A"
-                    dien_tich = item["dien_tich"] if "dien_tich" in df_limited.columns else "N/A"
-                    so_phong_ngu = item["so_phong_ngu"] if "so_phong_ngu" in df_limited.columns else "N/A"
-                    tong_so_tang = item["tong_so_tang"] if "tong_so_tang" in df_limited.columns else "N/A"
-                    chieu_ngang = item["chieu_ngang"] if "chieu_ngang" in df_limited.columns else "N/A"
-                    noi_that = item["tinh_trang_noi_that"] if "tinh_trang_noi_that" in df_limited.columns else "N/A"
-
-                    with cols[i % len(cols)]:
+            sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)[1:5]
+            
+            st.subheader("Kết quả gợi ý:")
+            rcols = st.columns(4)
+            for i, (sim_idx, score) in enumerate(sim_scores):
+                if sim_idx < len(df):
+                    item = df.iloc[sim_idx]
+                    with rcols[i]:
                         st.markdown(f"""
-                        <div class="house-card">
-                            <div class="sim-header">TƯƠNG ĐỒNG {score:.0%}</div>
-                            <div class="card-body">
-                                <div class="price-text">{gia_ban} triệu</div>
-                                <div class="meta-text"><b>Loại hình:</b> {loai_hinh}</div>
-                                <div class="meta-text"><b>Quận:</b> {quan}</div>
-                                <div class="meta-text"><b>Diện tích:</b> {dien_tich} m²</div>
-                                <div class="meta-text"><b>Phòng ngủ:</b> {so_phong_ngu}</div>
-                                <div class="meta-text"><b>Số tầng:</b> {tong_so_tang}</div>
-                                <div class="meta-text"><b>Ngang:</b> {chieu_ngang} m</div>
-                                <div class="meta-text"><b>Nội thất:</b> {noi_that}</div>
-                                <div class="tag-box">ID: {sim_idx}</div>
+                            <div class="house-card">
+                                <div style="background:#fff3e0; color:#e65100; font-size:10px; padding:5px; font-weight:bold; text-align:center">TƯƠNG ĐỒNG {score:.0%}</div>
+                                <div class="card-body">
+                                    <div class="price-text">{item['gia_ban']} tỷ</div>
+                                    <div style="font-size:12px;">{item['loai_hinh']}</div>
+                                    <div style="font-size:11px; color:#888;">📍 {item['quan']}</div>
+                                </div>
                             </div>
-                        </div>
                         """, unsafe_allow_html=True)
-
-                # =========================
-                # Bảng chi tiết bên dưới
-                # =========================
-                st.markdown("### Bảng chi tiết")
-                result_rows = []
-                for sim_idx, score in sim_scores:
-                    item = df_limited.loc[sim_idx]
-                    result_rows.append({
-                        "ID": sim_idx,
-                        "Độ tương đồng": f"{score:.2%}",
-                        "Quận": item["quan"] if "quan" in df_limited.columns else None,
-                        "Loại hình": item["loai_hinh"] if "loai_hinh" in df_limited.columns else None,
-                        "Giá": item["gia_ban"] if "gia_ban" in df_limited.columns else None,
-                        "Diện tích": item["dien_tich"] if "dien_tich" in df_limited.columns else None,
-                        "Phòng ngủ": item["so_phong_ngu"] if "so_phong_ngu" in df_limited.columns else None,
-                        "Số tầng": item["tong_so_tang"] if "tong_so_tang" in df_limited.columns else None,
-                        "Ngang": item["chieu_ngang"] if "chieu_ngang" in df_limited.columns else None,
-                        "Nội thất": item["tinh_trang_noi_that"] if "tinh_trang_noi_that" in df_limited.columns else None
-                    })
-
-                st.dataframe(pd.DataFrame(result_rows), use_container_width=True)
-
     else:
         st.error("Không tìm thấy file nha_cosine_sim.pkl")
 
