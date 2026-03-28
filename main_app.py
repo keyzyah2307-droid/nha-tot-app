@@ -211,7 +211,7 @@ elif choice == "🔍 Gợi ý thông minh":
     if cosine_sim is not None:
         # KIỂM TRA ĐỘ DÀI MA TRẬN
         max_supported = len(cosine_sim)
-        st.info(f"Hệ thống gợi ý hiện tại hỗ trợ {max_supported} căn nhà đầu tiên trong danh sách.")
+        st.info(f"Hệ thống gợi ý hiện tại hỗ trợ 2000 căn nhà đầu tiên trong danh sách.")
         
         # Chỉ cho phép chọn trong phạm vi AI hỗ trợ để tránh lỗi Index
         df_limited = df.iloc[:max_supported]
