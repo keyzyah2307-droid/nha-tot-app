@@ -131,7 +131,7 @@ if choice == "🏠 Trang chủ":
                 with cols[j]:
                     st.markdown(f"""
                         <div class="house-card">
-                            <img src="https://gateway.chotot.com/v1/public/chotot-img-live/image/default_house.png" width="100%">
+                            
                             <div class="card-content">
                                 <div class="title-text">{row['loai_hinh']} tại {row['quan']} - Đầy đủ tiện nghi</div>
                                 <div class="info-text">{row['dien_tich']} m² • {int(row.get('so_phong_ngu', 2))} PN • {int(row.get('tong_so_tang', 1))} Tầng</div>
