@@ -121,22 +121,41 @@ if choice == "🏠 Trang chủ":
     
     st.subheader(f"🏠 Có {len(data_view)} bất động sản dành cho bạn")
     
-    # Hiển thị Grid
+# Hiển thị Grid
     items_per_page = 12
-    for i in range(0, min(len(data_view), items_per_page), 3):
+    # Lấy dữ liệu an toàn tránh lỗi index
+    data_display = data_view.head(items_per_page)
+    
+    for i in range(0, len(data_display), 3):
         cols = st.columns(3)
         for j in range(3):
-            if i + j < len(data_view):
-                row = data_view.iloc[i + j]
+            if i + j < len(data_display):
+                row = data_display.iloc[i + j]
+                
+                # --- SỬA LỖI ẢNH TẠI ĐÂY ---
+                # Sử dụng ảnh mặc định nếu không có link ảnh hoặc link lỗi
+                # Bạn có thể thay link này bằng link ảnh local 'nhatot.jpg' nếu muốn
+                img_url = "https://static.chotot.com/storage/default_images/6.png" # Ảnh mặc định của Nhà Tốt
+                
                 with cols[j]:
                     st.markdown(f"""
                         <div class="house-card">
-                            
+                            <div style="width:100%; height:160px; background-color:#eeeeee; display:flex; align-items:center; justify-content:center;">
+                                <img src="{img_url}" style="width:100%; height:100%; object-fit:cover;">
+                            </div>
                             <div class="card-content">
-                                <div class="title-text">{row['loai_hinh']} tại {row['quan']} - Đầy đủ tiện nghi</div>
-                                <div class="info-text">{row['dien_tich']} m² • {int(row.get('so_phong_ngu', 2))} PN • {int(row.get('tong_so_tang', 1))} Tầng</div>
-                                <div class="price-text">{row['gia_ban']} tỷ</div>
-                                <div class="location-text">📍 {row['quan']}, TP. Hồ Chí Minh</div>
+                                <div class="title-text" style="font-weight:bold; height:45px; overflow:hidden;">
+                                    {row['loai_hinh']} tại {row['quan']}
+                                </div>
+                                <div class="info-text" style="color:#777; font-size:13px;">
+                                    {row['dien_tich']} m² • {int(row.get('so_phong_ngu', 0))} PN
+                                </div>
+                                <div class="price-text" style="color:#d0021b; font-weight:bold; font-size:18px; margin:5px 0;">
+                                    {row['gia_ban']} tỷ
+                                </div>
+                                <div class="location-text" style="font-size:12px; color:#888; border-top:1px solid #eee; padding-top:5px;">
+                                    📍 {row['quan']}, TP. Hồ Chí Minh
+                                </div>
                             </div>
                         </div>
                     """, unsafe_allow_html=True)
