@@ -176,34 +176,44 @@ elif choice == "📈 Định giá AI":
 
 elif choice == "🔍 Gợi ý thông minh":
     st.title("🔍 Gợi ý nhà tương tự")
+    
     if cosine_sim is not None:
-        selected_id = st.selectbox("Chọn căn nhà bạn đang quan tâm", df.index, 
-                                format_func=lambda x: f"{df.loc[x, 'loai_hinh']} - {df.loc[x, 'gia_ban']} tỷ ({df.loc[x, 'quan']})")
+        # KIỂM TRA ĐỘ DÀI MA TRẬN
+        max_supported = len(cosine_sim)
+        st.info(f"Hệ thống gợi ý hiện tại hỗ trợ {max_supported} căn nhà đầu tiên trong danh sách.")
         
-        # Xử lý Recommender
-        idx = selected_id
-        sim_scores = list(enumerate(cosine_sim[idx]))
-        sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)[1:5]
+        # Chỉ cho phép chọn trong phạm vi AI hỗ trợ để tránh lỗi Index
+        df_limited = df.iloc[:max_supported]
         
-        st.write("---")
-        st.subheader("Có thể bạn cũng quan tâm")
-        rcols = st.columns(4)
-        for i, (sim_idx, score) in enumerate(sim_scores):
-            item = df.iloc[sim_idx]
-            with rcols[i]:
-                st.markdown(f"""
-                    <div class="house-card">
-                        <div style="background:#fff3e0; color:#e65100; font-size:10px; padding:3px 10px; font-weight:bold">TƯƠNG ĐỒNG {score:.0%}</div>
-                        <div class="card-content">
-                            <div class="title-text">{item['loai_hinh']}</div>
-                            <div class="price-text">{item['gia_ban']} tỷ</div>
-                            <div class="location-text">{item['quan']}</div>
-                        </div>
-                    </div>
-                """, unsafe_allow_html=True)
+        selected_id = st.selectbox(
+            "Chọn căn nhà để tìm căn tương tự:", 
+            options=df_limited.index,
+            format_func=lambda x: f"ID {x}: {df_limited.loc[x, 'loai_hinh']} - {df_limited.loc[x, 'gia_ban']} tỷ"
+        )
+        
+        # XỬ LÝ GỢI Ý AN TOÀN
+        if selected_id < max_supported:
+            sim_scores = list(enumerate(cosine_sim[selected_id]))
+            sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)[1:5]
+            
+            st.subheader("Kết quả gợi ý:")
+            rcols = st.columns(4)
+            for i, (sim_idx, score) in enumerate(sim_scores):
+                if sim_idx < len(df):
+                    item = df.iloc[sim_idx]
+                    with rcols[i]:
+                        st.markdown(f"""
+                            <div class="house-card">
+                                <div style="background:#fff3e0; color:#e65100; font-size:10px; padding:5px; font-weight:bold; text-align:center">TƯƠNG ĐỒNG {score:.0%}</div>
+                                <div class="card-body">
+                                    <div class="price-text">{item['gia_ban']} tỷ</div>
+                                    <div style="font-size:12px;">{item['loai_hinh']}</div>
+                                    <div style="font-size:11px; color:#888;">📍 {item['quan']}</div>
+                                </div>
+                            </div>
+                        """, unsafe_allow_html=True)
     else:
-        st.error("Chưa nạp được mô hình gợi ý.")
-
+        st.error("Không tìm thấy file nha_cosine_sim.pkl")
 
     # Sử dụng Tabs để phân loại báo cáo
 # --- BÁO CÁO & PHÂN TÍCH (Gộp lại cho gọn) ---
