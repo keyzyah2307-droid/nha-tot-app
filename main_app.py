@@ -127,7 +127,6 @@ if choice == "🏠 Trang chủ":
     data_display = data_view.head(items_per_page)
     
 # --- PHẦN HIỂN THỊ GRID TRONG TRANG CHỦ ---
-    st.subheader(f"🏠 Có {len(data_view)} bất động sản dành cho bạn")
     
     # Thiết lập số lượng tin hiển thị
     items_per_page = 12
